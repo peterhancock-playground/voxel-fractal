@@ -8,7 +8,7 @@
     Octree.octree = function(geometry, viewport, depth) {
         return octree(geometry, viewport, depth);
     }
-    
+
     function octree(geometry, viewport, depth) {
         if (depth === 0) {
             return geometry.apply(this, viewport.origin);

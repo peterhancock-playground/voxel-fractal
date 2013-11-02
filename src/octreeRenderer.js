@@ -8,7 +8,7 @@
     OctreeRenderer.render = function(tree, viewport, draw, depth) {
         renderTree(tree, viewport, draw, depth);
     }
-    
+
     var orderedOctal = [];
 
     for (k = 0; k < 2; k++) {
