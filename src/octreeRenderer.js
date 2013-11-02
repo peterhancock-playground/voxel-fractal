@@ -35,8 +35,8 @@
                 }
                 renderTree(tree[index], childViewport, draw, depth - 1);
             }
-        } else if (tree /*&& depth === 0*/) {
-            draw(viewport);
+        } else if (tree) {
+            draw(viewport, depth);
         }
     }
 
