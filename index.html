@@ -8,30 +8,29 @@
             
         </script>
         <script>
-            var geometryCalc = function(x, y, z) {
-                return x + y + z < 1;
-            };
-
-
             //script
             $(function() {
                 var width = window.innerWidth;
                 var height = width;
                 var w = width / 2;
-                
+
+                var geometryCalc = function(x, y, z) {
+                    return x + y + z < width && ((x - w) * (x - w) + (y - w) * (y - w) + (z - w) * (z - w) > w * w);
+                };
+
                 var viewport = {
                     origin: [0, 0, 0],
                     width: width
                 };
-                
+
                 var scene = new THREE.Scene();
-                
+
                 var camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, - 1000, 1000);
                 camera.position.x = 1;
                 camera.position.y = 1;
                 camera.position.z = 1;
                 camera.lookAt(scene.position);
-                
+
                 var directionalLight = new THREE.DirectionalLight(0xffffff);
                 directionalLight.position.set(-1, 2, 1.5).normalize();
                 scene.add(directionalLight);
@@ -85,27 +84,19 @@
                     mesh.position.x += origin[0];
                     mesh.position.y += origin[1];
                     mesh.position.z += origin[2];
-                    scene.add(mesh);var width = viewport.width;
-                    var origin = viewport.origin;
-                    geometry = new THREE.CubeGeometry(width, width, width);
-                    mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.x += origin[0];
-                    mesh.position.y += origin[1];
-                    mesh.position.z += origin[2];
                     scene.add(mesh);
                 }
-                
-                var tree = Octree.octree(geometryCalc, viewport, 3);
+
+                var tree = Octree.octree(geometryCalc, viewport, 6);
                 OctreeRenderer.render(tree, viewport, draw);
 
-
                 renderer = new THREE.CanvasRenderer();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setSize(window.innerHeight, window.innerHeight);
 
                 $('#fractal').append(renderer.domElement);
                 renderer.render(scene, camera);
 
-                
+
             })
         </script>
     </head>

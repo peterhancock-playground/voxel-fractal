@@ -41,9 +41,9 @@
         if (tree instanceof Array) {
             var width = viewport.width / 2,
                 origin = viewport.origin,
-                i, j, k, n, index, childViewport, coords;
-            for(index = 0; n < 8; n++) {
-                coords = orderedOctal[n];
+                i, j, k, index, childViewport, coords;
+            for(index = 0; index < 8; index++) {
+                coords = orderedOctal[index];
                 i = coords[0];
                 j = coords[1];
                 k = coords[2];
@@ -57,7 +57,6 @@
             draw(viewport);
         }
     }
-
 
     if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
         module.exports = OctreeRenderer;
