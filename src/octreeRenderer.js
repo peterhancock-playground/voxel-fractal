@@ -5,30 +5,12 @@
      * viewport = {origin: [x, y, z], width: width}
      * depth = 0,1,..
      */
-    OctreeRenderer.render = function(tree, viewport, draw) {
-        renderTree(tree, viewport, draw);
+    OctreeRenderer.render = function(tree, viewport, draw, depth) {
+        renderTree(tree, viewport, draw, depth);
     }
     
     var orderedOctal = [];
-    
-    
-    /*
-                   3
-                     4
-                   1
-                7    2
-                  8
-                5
-                  6
-                  
-            [1, 1, 0] - > [1, 0, 0] -> [1, 1, 1] -> [1, 1, 0] ->
-                [0, 1, 0] -> [0, 0, 0] -> [0, 1, 1] -> [0, 0, 1]
-               
-                k        
-            j   |    i
-             \     /    
-            
-            */
+
     for (k = 0; k < 2; k++) {
         for (j = 0; j < 2; j++) {
             for (i = 0; i < 2; i++) {
@@ -37,7 +19,7 @@
         }
     }
 
-    function renderTree(tree, viewport, draw) {
+    function renderTree(tree, viewport, draw, depth) {
         if (tree instanceof Array) {
             var width = viewport.width / 2,
                 origin = viewport.origin,
@@ -51,9 +33,9 @@
                     origin: [origin[0] + i * width, origin[1] +j * width, origin[2] + k * width],
                     width: width
                 }
-                renderTree(tree[index], childViewport, draw);
+                renderTree(tree[index], childViewport, draw, depth - 1);
             }
-        } else if (tree) {
+        } else if (tree /*&& depth === 0*/) {
             draw(viewport);
         }
     }

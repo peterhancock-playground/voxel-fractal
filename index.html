@@ -14,6 +14,7 @@
                 var height = width;
                 var w = width / 2;
 
+
                 var geometryCalc = function(x, y, z) {
                     return x + y + z < width && ((x - w) * (x - w) + (y - w) * (y - w) + (z - w) * (z - w) > w * w);
                 };
@@ -76,6 +77,10 @@
                 mesh.position.z += w;
                 scene.add(mesh);
 
+                material = new THREE.MeshLambertMaterial({
+                    color: 0xeeeeee
+                });
+
                 var draw = function(viewport) {
                     var width = viewport.width;
                     var origin = viewport.origin;
@@ -87,8 +92,9 @@
                     scene.add(mesh);
                 }
 
-                var tree = Octree.octree(geometryCalc, viewport, 6);
-                OctreeRenderer.render(tree, viewport, draw);
+                var depth = 6;
+                var tree = Octree.octree(geometryCalc, viewport, depth);
+                OctreeRenderer.render(tree, viewport, draw, depth);
 
                 renderer = new THREE.CanvasRenderer();
                 renderer.setSize(window.innerHeight, window.innerHeight);
