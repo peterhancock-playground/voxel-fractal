@@ -12,7 +12,7 @@
             //script
 
             function isVisable(x, y, z) {
-                return x + y + z < 1;
+                return x + y + z < 2;
             }
 
             function terminatorSphere(x, y, z) {
@@ -45,28 +45,44 @@
             }
 
             $(function() {
-                var width = window.innerWidth;
-                var height = width;
-                var w = width / 2;
-                var f = function(x, y, z) {
+                var world = function(x, y, z) {
                     return !terminatorSphere(x,y,z)
                 };
+
+                world = fractalDepth();
+
                 var geometryCalc = function(x, y, z) {
-                    return isVisable(x, y, z) && f(x, z, y);
+                    return isVisable(x, y, z) && !world(x, z, y);
                 };
 
-                var viewport = {
-                    origin: [0, 0, 0],
-                    width: 1
+                var worldViewport = {
+                    origin: [-1, -1, -1],
+                    width: 2
                 };
+
+                var depth = 5;
+
+                // Compute octree for the world viewport
+                var tree = Octree.octree(geometryCalc, worldViewport, depth);
+
+                var worldToScreen = function(x, y, z) {
+                    var xs = (x - worldViewport.origin[0]) * screenSize / worldViewport.width;
+                    var ys = (y - worldViewport.origin[1]) * screenSize / worldViewport.width;
+                    var zs = (z - worldViewport.origin[2]) * screenSize / worldViewport.width;
+                    return {x: xs, y: ys, z: zs};
+                };
+
+                // Render and draw
 
                 var scene = new THREE.Scene();
 
-                var zoom = 0.55;
+                var zoom = 1;
 
-                var camera = new THREE.OrthographicCamera(-width * zoom , width * zoom, height * zoom, -height * zoom, - 2000, 1000);
+                var screenSize = Math.min(window.innerWidth, window.innerHeight)
+                var screen = {width: screenSize, height: screenSize};
+                var camera = new THREE.OrthographicCamera(- screen.width * zoom , screen.width * zoom, screen.height * zoom, - screen.height * zoom, - 2000, 1000);
                 camera.position.x = 1;
-                camera.position.y = 1;
+                camera.position.y = 2;
                 camera.position.z = 1;
                 camera.lookAt(scene.position);
 
@@ -74,33 +90,29 @@
                 directionalLight.position.set(-1, 2, 1.5).normalize();
                 scene.add(directionalLight);
 
-                var depth = 5;
                 materials = [];
                 for(var i = 0; i < depth; i ++) {
                     materials.push(new THREE.MeshLambertMaterial({
-                        transparent: true, opacity: (i + 1) / depth,
+                        //transparent: true, opacity: (i + 1) / depth,
                         color: 0xffffff
                     }));
                 }
 
                 var draw = function(viewport, depth) {
-                   var w = viewport.width * width / 2;
+                   var cubeWidth = viewport.width * screenSize / worldViewport.width ;
                    var origin = viewport.origin;
-                   geometry = new THREE.CubeGeometry(w, w, w);
-                   mesh = new THREE.Mesh(geometry, materials[depth]);
-                   mesh.position.x += origin[0] * width;
-                   mesh.position.y += origin[1] * width;
-                   mesh.position.z += origin[2] * width;
+                   var mesh = new THREE.Mesh(new THREE.CubeGeometry(cubeWidth, cubeWidth, cubeWidth), materials[depth]);
+                   mesh.position = worldToScreen.apply(this, origin)
                    scene.add(mesh);
                 }
 
-                var tree = Octree.octree(geometryCalc, viewport, depth);
 
                 _.defer(function() {
-                    OctreeRenderer.render(tree, viewport, draw, depth);
+                    // Emit the octree to the drawing routine
+                    OctreeRenderer.render(tree, worldViewport, draw, depth);
                     renderer = new THREE.CanvasRenderer();
                     renderer.setClearColorHex(0xffffff, 1)
-                    renderer.setSize(window.innerHeight, window.innerHeight);
+                    renderer.setSize(screenSize, screenSize);
                     $('#download').hide();
                     renderer.render(scene, camera);
                     $('#fractal').append(renderer.domElement);
