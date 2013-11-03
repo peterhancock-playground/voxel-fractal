@@ -12,7 +12,7 @@
             //script
 
             function isVisable(x, y, z) {
-                return x + y + z < 2;
+                return x + y + z > -3;
             }
 
             function terminatorSphere(x, y, z) {
@@ -39,20 +39,21 @@
                     return '' + x + '-' + y;
                 });
                 return function(x, y, z) {
-                    return z < frac(x, y)/100;
+                    //return z < frac(x, y) / 100;
+                    return frac(x, y) === 100;
                 }
 
             }
 
             $(function() {
                 var world = function(x, y, z) {
-                    return !terminatorSphere(x,y,z)
+                    return terminatorSphere(x,y,z)
                 };
 
                 world = fractalDepth();
 
                 var geometryCalc = function(x, y, z) {
-                    return isVisable(x, y, z) && !world(x, z, y);
+                    return isVisable(x, y, z) && world(x, z, y);
                 };
 
                 var worldViewport = {
@@ -60,7 +61,7 @@
                     width: 2
                 };
 
-                var depth = 5;
+                var depth = 6;
 
                 // Compute octree for the world viewport
                 var tree = Octree.octree(geometryCalc, worldViewport, depth);
@@ -80,9 +81,9 @@
 
                 var screenSize = Math.min(window.innerWidth, window.innerHeight)
                 var screen = {width: screenSize, height: screenSize};
-                var camera = new THREE.OrthographicCamera(- screen.width * zoom , screen.width * zoom, screen.height * zoom, - screen.height * zoom, - 2000, 1000);
+                var camera = new THREE.OrthographicCamera(-screen.width * zoom , screen.width * zoom, screen.height * zoom, - screen.height * zoom, - 3000, 1000);
                 camera.position.x = 1;
-                camera.position.y = 2;
+                camera.position.y = 1;
                 camera.position.z = 1;
                 camera.lookAt(scene.position);
 
@@ -99,10 +100,10 @@
                 }
 
                 var draw = function(viewport, depth) {
-                   var cubeWidth = viewport.width * screenSize / worldViewport.width ;
+                   var cubeWidth = viewport.width * screenSize / worldViewport.width;
                    var origin = viewport.origin;
                    var mesh = new THREE.Mesh(new THREE.CubeGeometry(cubeWidth, cubeWidth, cubeWidth), materials[depth]);
-                   mesh.position = worldToScreen.apply(this, origin)
+                   _(mesh.position).extend(worldToScreen.apply(this, origin));
                    scene.add(mesh);
                 }
 
@@ -119,7 +120,6 @@
                     $('#download').click(function(e) {
                         e.preventDefault();
                         var canvas = renderer.domElement;
-                        canvas.backgroundColor="green";
                         window.open(canvas.toDataURL('image/png'));
                     }).show();
 
